@@ -10,21 +10,27 @@ const URL = (process.env.NODE_ENV === 'debug')
   const browser = await chromium.launch();
   const printToPDF = async(url, outName) => {
     const page = await browser.newPage();
+    
+    await page.route('**/*', async (route) => {
+      const url = route.request().url();
+      // 字體請求
+      if (url.includes('NotoSans.woff2')) {
+        const newUrl = process.env.NODE_ENV === 'debug'
+          ? url.replace('/NotoSans.woff2', '/public/NotoSans.woff2')
+          : url.replace('/public/NotoSans.woff2', '/NotoSans.woff2');
+        await route.continue({ url: newUrl });
+      } else {
+        await route.continue();
+      }
+    });
+
     await page.goto(url, { waitUntil: 'networkidle' });
     
-    // 設定頁面比例以調整內容大小
     await page.pdf({
       path: outName,
       pageRanges: '1',
-      format: 'A4',           
-      scale: 1,            
-      margin: {              
-        top: '20px',
-        right: '20px',
-        bottom: '20px',
-        left: '20px'
-      },
-      preferCSSPageSize: true 
+      scale: 0.85,
+      displayHeaderFooter: false,
     });
   };
 
