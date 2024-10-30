@@ -12,19 +12,9 @@ const URL = (process.env.NODE_ENV === 'debug')
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle' });
     
-    // 設定頁面比例以調整內容大小
     await page.pdf({
       path: outName,
       pageRanges: '1',
-      format: 'A4',           
-      scale: 1,            
-      margin: {              
-        top: '20px',
-        right: '20px',
-        bottom: '20px',
-        left: '20px'
-      },
-      preferCSSPageSize: true 
     });
   };
 
